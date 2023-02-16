@@ -4,18 +4,18 @@
 
 ## Marina Zeni Oliveira Marques Calderan
 
-**Passo à passo**
-Abrir um Terminal em modo admnistrador e navegar até a pasta do projeto
-Executar a seguinte ordem dos comandos:
+**Passo à passo:**
+- Abrir um Terminal em modo admnistrador e navegar até a pasta do projeto
+- Executar a seguinte ordem dos comandos:
 
-> Instalar as dependências
+  > Instalar as dependências
 
-```sh
-pip install -r dependences.txt
-```
+  ```sh
+  pip install -r dependences.txt
+  ```
 
-> Executar a aplicação
+  > Executar a aplicação
 
-```sh
-python -m streamlit run main.py
-```
+  ```sh
+  python -m streamlit run main.py
+  ```
