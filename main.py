@@ -10,20 +10,26 @@ def rgb_to_cmy(rgb_array):
     return [(255 - rgb_array[0]), (255 - rgb_array[1]), (255 - rgb_array[2])]
 
 def rgb_to_hsi(rgb_array):
-    r = rgb_array[0] / (rgb_array[0] + rgb_array[1] + rgb_array[2])
-    g = rgb_array[1] / (rgb_array[0] + rgb_array[1] + rgb_array[2])
-    b = rgb_array[2] / (rgb_array[0] + rgb_array[1] + rgb_array[2])
+    Sum = sum(rgb_array)
     
-    if b <= g:
-        h = mt.acos(((0.5 * ((r - g) + (r - b))) / mt.pow((mt.pow((r - g), 2) + (r - b) * (g - b)), 0.5)))
+    r = rgb_array[0] / Sum
+    g = rgb_array[1] / Sum
+    b = rgb_array[2] / Sum
+    
+    h_part = mt.pow((mt.pow((r - g), 2) + (r - b) * (g - b)), 0.5)
+    if h_part != 0:
+        if b <= g:
+            h = mt.acos(((0.5 * ((r - g) + (r - b))) / h_part))
+        else:
+            h = 2 * mt.pi - (mt.acos(((0.5 * ((r - g) + (r - b))) / h_part)))
     else:
-        h = 2 * mt.pi - (mt.acos(((0.5 * ((r - g) + (r - b))) / mt.pow((mt.pow((r - g), 2) + (r - b) * (g - b)), 0.5))))
-
+        h = 0
+        
     s = 1 - 3 * min(r, g, b)
-    i = (rgb_array[0] + rgb_array[1] + rgb_array[2]) / (3 * 255)
+    i = Sum / (3 * 255)
     
-    H = round((h * 180) / mt.pi)    #PRECISA CONSERTAR
-    S = format((s * 100), ".2f")    #PRECISA CONSERTAR
+    H = round((h * 180) / mt.pi)
+    S = round(s * 100)
     I = round(i * 255)
     
     return [(H), (S), (I)] 
