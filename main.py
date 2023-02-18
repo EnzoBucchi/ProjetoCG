@@ -34,6 +34,38 @@ def rgb_to_hsi(rgb_array):
     
     return [(H), (S), (I)] 
 
+def hsi_to_rgb(hsi_array):
+    h = hsi_array[0] * mt.pi / 180
+    s = hsi_array[1] / 100
+    i = hsi_array[2] / 255
+    
+    opt = 0
+    if 2 * mt.pi / 3 <= h < 4 * mt.pi / 3:
+        h = h - 2 * mt.pi / 3
+        opt = 1
+    elif 4 * mt.pi / 3 <= h < 2 * mt.pi:
+        h = h - 4 * mt.pi / 3
+        opt = 2
+    
+    x = i * (1 - s)
+    y = i * (1 + (s * mt.cos(h) / mt.cos(mt.pi / 3 - h)))
+    z = 3 * i - (x + y)
+    
+    if opt == 1:
+        r = x
+        g = y
+        b = z
+    elif opt == 2:
+        r = z
+        g = x
+        b = y
+    else:
+        r = y
+        g = z
+        b = x
+        
+    return [(255 * r), (255 * g), (255 * b)]
+
 ### MONTAGEM DA INTERFACE ###
 arq_image = st.file_uploader(
     "Arquivo da Imagem:",
@@ -42,8 +74,9 @@ arq_image = st.file_uploader(
 
 if arq_image is not None:
     image = Image.open(arq_image)
-    coords = streamlit_image_coordinates(image)
     image_matrix = np.array(image)
+    
+    coords = streamlit_image_coordinates(image)
     
     line1 = st.columns((1, 1, 1))
     line2 = st.columns((1, 1, 1))
@@ -75,5 +108,7 @@ if arq_image is not None:
         with line3[2]:
             st.write("I = " + str(hsi_pixel[2]))
         
-
+    brightness = st.sidebar.slider("Brilho", min_value=0, max_value=100, value=50)
+    hue = st.sidebar.slider("Matiz", min_value=0, max_value=360, value=0)
+    
     
