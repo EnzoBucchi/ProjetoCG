@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import math as mt
 from PIL import Image
+import matplotlib.pyplot as plt
 from streamlit_image_coordinates import streamlit_image_coordinates
 
 ### FUNÇÕES DE CONVERSÃO ###
@@ -67,6 +68,11 @@ def hsi_to_rgb(hsi_array):
     return [(255 * r), (255 * g), (255 * b)]
 
 ### LUMINANCIA ###
+#   -- Histograma
+#   -- Equalização de Histogram
+#   -- Binarização (manual)
+#   -- Binarização com Otsu (extra)
+#
 def alterarLuminancia(imagem):
     novaImagem = imagem.copy()
 
@@ -78,9 +84,30 @@ def alterarLuminancia(imagem):
 
     return novaImagem
 
+def histograma(imagem):
+    matriz = np.array(imagem)
+    histograma, bins = np.histogram(matriz.flatten(), bins=256, range=(0, 256))
+
+    resultado, ax = plt.subplots()
+    ax.bar(bins[:-1], histograma, width=1)
+    ax.set_xlim(0, 256)
+    ax.set_ylim(0, np.max(histograma))
+    ax.set_xlabel('Intensidade pixel')
+    ax.set_ylabel('N° pixels')
+    ax.set_title('Histograma')
+    resultado.set_figheight(3)
+    resultado.set_figwidth(10)
+    st.pyplot(resultado)
+
 ### BRILHO ###
+def alterarBrilho(imagem, brilho):
+    teste = 5;
+    return imagem
 
 ### MATIZ ###
+def alterarMatiz(imagem, brilho):
+    teste = 5;
+    return imagem
 
 ### MONTAGEM DA INTERFACE ###
 arq_image = st.file_uploader(
@@ -91,6 +118,7 @@ arq_image = st.file_uploader(
 if arq_image is not None:
     image = Image.open(arq_image)
     image_matrix = np.array(image)
+    image.histogram()
     
     coords = streamlit_image_coordinates(image)
     
@@ -123,12 +151,18 @@ if arq_image is not None:
             st.write("S = " + str(hsi_pixel[1]))
         with line3[2]:
             st.write("I = " + str(hsi_pixel[2]))
-        
-        if st.button("Luminância"):
-            new_image = alterarLuminancia(image)
-            st.image(new_image)
-        
+    
+    if st.button("Luminância"):
+        novaImagem = alterarLuminancia(image)
+        st.image(novaImagem) 
+        histograma(novaImagem)
+
     brightness = st.sidebar.slider("Brilho", min_value=0, max_value=100, value=50)
+    if brightness != 50:
+        novaImagem = alterarBrilho(image, brightness);
+        st.image(novaImagem) 
+
     hue = st.sidebar.slider("Matiz", min_value=0, max_value=360, value=0)
-    
-    
+    if hue != 0:
+        novaImagem = alterarMatiz(image, brightness);
+        st.image(novaImagem)
