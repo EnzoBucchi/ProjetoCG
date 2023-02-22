@@ -66,6 +66,22 @@ def hsi_to_rgb(hsi_array):
         
     return [(255 * r), (255 * g), (255 * b)]
 
+### LUMINANCIA ###
+def alterarLuminancia(imagem):
+    novaImagem = imagem.copy()
+
+    for x in range(imagem.width):
+        for y in range(imagem.height):
+            pixel = imagem.getpixel((x,y))
+            media = int(pixel[0]*0.299 + pixel[1]*0.587 + pixel[2]*0.114)
+            novaImagem.putpixel((x,y), (media, media, media))
+
+    return novaImagem
+
+### BRILHO ###
+
+### MATIZ ###
+
 ### MONTAGEM DA INTERFACE ###
 arq_image = st.file_uploader(
     "Arquivo da Imagem:",
@@ -107,6 +123,10 @@ if arq_image is not None:
             st.write("S = " + str(hsi_pixel[1]))
         with line3[2]:
             st.write("I = " + str(hsi_pixel[2]))
+        
+        if st.button("Luminância"):
+            new_image = alterarLuminancia(image)
+            st.image(new_image)
         
     brightness = st.sidebar.slider("Brilho", min_value=0, max_value=100, value=50)
     hue = st.sidebar.slider("Matiz", min_value=0, max_value=360, value=0)
