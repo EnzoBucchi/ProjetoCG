@@ -152,7 +152,7 @@ if arq_image is not None:
         with line3[2]:
             st.write("I = " + str(hsi_pixel[2]))
     
-    if st.button("Luminância"):
+    if st.button("Luminância e Histograma"):
         novaImagem = alterarLuminancia(image)
         st.image(novaImagem) 
         histograma(novaImagem)
