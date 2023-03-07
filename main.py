@@ -99,6 +99,19 @@ def histograma(imagem):
     resultado.set_figwidth(10)
     st.pyplot(resultado)
 
+def aplicarBinarizacao(imagem):
+    novaImagem = imagem.copy()
+    for x in range(imagem.width):
+        for y in range(imagem.height):
+            pixel = imagem.getpixel((x,y))
+            media = int(pixel[0]*0.299 + pixel[1]*0.587 + pixel[2]*0.114)
+            if (media > 127.5):
+                novaImagem.putpixel((x,y), (255, 255, 255))
+            else:
+                novaImagem.putpixel((x,y), (0, 0, 0))
+
+    return novaImagem
+
 ### BRILHO ###
 def alterarBrilho(imagem, brilho):
     teste = 5;
@@ -152,9 +165,14 @@ if arq_image is not None:
         with line3[2]:
             st.write("I = " + str(hsi_pixel[2]))
     
-    if st.button("Luminância e Histograma"):
+    if st.button("Luminância"):
         novaImagem = alterarLuminancia(image)
         st.image(novaImagem) 
+        histograma(novaImagem)
+
+    if st.button("Binarização"):
+        novaImagem = aplicarBinarizacao(image)
+        st.image(novaImagem)
         histograma(novaImagem)
 
     brightness = st.sidebar.slider("Brilho", min_value=0, max_value=100, value=50)
