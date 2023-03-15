@@ -13,9 +13,14 @@ def rgb_to_cmy(rgb_array):
 def rgb_to_hsi(rgb_array):
     Sum = sum(rgb_array)
     
-    r = rgb_array[0] / Sum
-    g = rgb_array[1] / Sum
-    b = rgb_array[2] / Sum
+    if Sum != 0:
+        r = rgb_array[0] / Sum
+        g = rgb_array[1] / Sum
+        b = rgb_array[2] / Sum
+    else:
+        r = rgb_array[0]
+        g = rgb_array[1]
+        b = rgb_array[2]
     
     h_part = mt.pow((mt.pow((r - g), 2) + (r - b) * (g - b)), 0.5)
     if h_part != 0:
