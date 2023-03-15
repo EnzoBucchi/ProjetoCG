@@ -67,6 +67,19 @@ def hsi_to_rgb(hsi_array):
         
     return [(255 * r), (255 * g), (255 * b)]
 
+### BRILHO ###
+def alterarBrilho(pixel_hsi):
+    if 0 >= pixel_hsi[2] + brightness <= 255:
+        pixel_hsi[2] += brightness
+    return pixel_hsi
+
+### MATIZ ###
+def alterarMatiz(pixel_hsi):
+    pixel_hsi[0] += hue
+    if pixel_hsi[0] >= 360:
+        pixel_hsi[0] -= 360
+    return pixel_hsi
+    
 ### LUMINANCIA ###
 #   -- Histograma
 #   -- Equalização de Histogram
@@ -112,15 +125,6 @@ def aplicarBinarizacao(imagem):
 
     return novaImagem
 
-### BRILHO ###
-def alterarBrilho(imagem, brilho):
-    teste = 5;
-    return imagem
-
-### MATIZ ###
-def alterarMatiz(imagem, brilho):
-    teste = 5;
-    return imagem
 
 ### MONTAGEM DA INTERFACE ###
 arq_image = st.file_uploader(
@@ -174,13 +178,13 @@ if arq_image is not None:
         novaImagem = aplicarBinarizacao(image)
         st.image(novaImagem)
         histograma(novaImagem)
+        
+    image_matrix_hsi = np.apply_along_axis(rgb_to_hsi, axis=2, arr=image_matrix)
 
-    brightness = st.sidebar.slider("Brilho", min_value=0, max_value=100, value=50)
-    if brightness != 50:
-        novaImagem = alterarBrilho(image, brightness);
-        st.image(novaImagem) 
-
+    brightness = st.sidebar.slider("Brilho", min_value=-100, max_value=100, value=0)
     hue = st.sidebar.slider("Matiz", min_value=0, max_value=360, value=0)
-    if hue != 0:
-        novaImagem = alterarMatiz(image, brightness);
-        st.image(novaImagem)
+    
+    
+    st.sidebar.header(" ")
+    st.sidebar.header(" ")
+    st.sidebar.image(image_matrix)
