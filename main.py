@@ -68,10 +68,16 @@ def hsi_to_rgb(hsi_array):
     return [(255 * r), (255 * g), (255 * b)]
 
 ### BRILHO ###
-def alterarBrilho(pixel_hsi):
-    if 0 >= pixel_hsi[2] + brightness <= 255:
-        pixel_hsi[2] += brightness
-    return pixel_hsi
+def alterarBrilho(imagem, brilho):
+    novaImagem = imagem.copy()
+    for x in range(imagem.width):
+        for y in range(imagem.height):
+            pixel = imagem.getpixel((x,y))
+            pixelHSI = rgb_to_hsi(pixel)
+            pixelHSI[2] = (pixelHSI[2] * (1 + brilho))
+            pixel = hsi_to_rgb(pixelHSI)
+            novaImagem.putpixel((x,y), (int(pixel[0]), int(pixel[1]), int(pixel[2])))
+    return novaImagem
 
 ### MATIZ ###
 def alterarMatiz(pixel_hsi):
@@ -178,13 +184,11 @@ if arq_image is not None:
         novaImagem = aplicarBinarizacao(image)
         st.image(novaImagem)
         histograma(novaImagem)
-        
-    image_matrix_hsi = np.apply_along_axis(rgb_to_hsi, axis=2, arr=image_matrix)
 
-    brightness = st.sidebar.slider("Brilho", min_value=-100, max_value=100, value=0)
+    brightness = st.sidebar.slider("Brilho", min_value=-1.5, max_value=1.5, value=0.0)
     hue = st.sidebar.slider("Matiz", min_value=0, max_value=360, value=0)
     
-    
     st.sidebar.header(" ")
     st.sidebar.header(" ")
-    st.sidebar.image(image_matrix)
+    novaImagem = alterarBrilho(image, brightness);
+    st.sidebar.image(novaImagem)
