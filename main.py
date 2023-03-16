@@ -79,23 +79,29 @@ def alterarBrilho(imagem, brilho):
         for y in range(imagem.height):
             pixel = imagem.getpixel((x,y))
             pixelHSI = rgb_to_hsi(pixel)
-            pixelHSI[2] = (pixelHSI[2] * (1 + brilho))
+            pixelHSI[2] = (pixelHSI[2] * ((brilho + 100)/100))
             pixel = hsi_to_rgb(pixelHSI)
             novaImagem.putpixel((x,y), (int(pixel[0]), int(pixel[1]), int(pixel[2])))
     return novaImagem
 
 ### MATIZ ###
-def alterarMatiz(pixel_hsi):
-    pixel_hsi[0] += hue
-    if pixel_hsi[0] >= 360:
-        pixel_hsi[0] -= 360
-    return pixel_hsi
+def alterarMatiz(imagem, hue):
+    novaImagem = imagem.copy()
+    for x in range(imagem.width):
+        for y in range(imagem.height):
+            pixel = imagem.getpixel((x,y))
+            pixelHSI = rgb_to_hsi(pixel)
+            pixelHSI[0] += hue
+            if pixelHSI[0] >= 360:
+                pixelHSI[0] -= 360
+            pixel = hsi_to_rgb(pixelHSI)
+            novaImagem.putpixel((x,y), (int(pixel[0]), int(pixel[1]), int(pixel[2])))
+    return novaImagem
     
 ### LUMINANCIA ###
 #   -- Histograma
-#   -- Equalização de Histogram
-#   -- Binarização (manual)
-#   -- Binarização com Otsu (extra)
+#   -- Equalização de Histograma
+#   -- Binarização
 #
 def alterarLuminancia(imagem):
     novaImagem = imagem.copy()
@@ -123,39 +129,39 @@ def histograma(imagem):
     resultado.set_figwidth(10)
     st.pyplot(resultado)
 
-def aplicarBinarizacao(imagem):
+def aplicarBinarizacao(imagem, bin):
     novaImagem = imagem.copy()
     for x in range(imagem.width):
         for y in range(imagem.height):
             pixel = imagem.getpixel((x,y))
             media = int(pixel[0]*0.299 + pixel[1]*0.587 + pixel[2]*0.114)
-            if (media > 127.5):
+            if (media > bin):
                 novaImagem.putpixel((x,y), (255, 255, 255))
             else:
                 novaImagem.putpixel((x,y), (0, 0, 0))
-
     return novaImagem
 
 
 ### MONTAGEM DA INTERFACE ###
-arq_image = st.file_uploader(
+arq_imagem = st.file_uploader(
     "Arquivo da Imagem:",
     help="Faça upload de uma imagem",
 )
 
-if arq_image is not None:
-    image = Image.open(arq_image)
-    image_matrix = np.array(image)
-    image.histogram()
+if arq_imagem is not None:
+    imagem = Image.open(arq_imagem)
+    imagem_matriz = np.array(imagem)
+    imagem.histogram()
     
-    coords = streamlit_image_coordinates(image)
+    coords = streamlit_image_coordinates(imagem)
     
     line1 = st.columns((1, 1, 1))
     line2 = st.columns((1, 1, 1))
     line3 = st.columns((1, 1, 1))
+    line4 = st.columns((1, 1))
     
     if coords is not None:
-        rgb_pixel = (image_matrix[coords["y"]][coords["x"]])
+        rgb_pixel = (imagem_matriz[coords["y"]][coords["x"]])
         cmy_pixel = rgb_to_cmy(rgb_pixel)
         hsi_pixel = rgb_to_hsi(rgb_pixel)
         
@@ -180,20 +186,24 @@ if arq_image is not None:
         with line3[2]:
             st.write("I = " + str(hsi_pixel[2]))
     
-    if st.button("Luminância"):
-        novaImagem = alterarLuminancia(image)
-        st.image(novaImagem) 
-        histograma(novaImagem)
-
-    if st.button("Binarização"):
-        novaImagem = aplicarBinarizacao(image)
-        st.image(novaImagem)
-        histograma(novaImagem)
-
-    brightness = st.sidebar.slider("Brilho", min_value=-1.5, max_value=1.5, value=0.0)
-    hue = st.sidebar.slider("Matiz", min_value=0, max_value=360, value=0)
+    st.header("Luminância")
+    imagemLuminancia = alterarLuminancia(imagem)
+    st.image(imagemLuminancia) 
+    histograma(imagemLuminancia)
     
+    st.header("Binarização")
+    imagemBinarizacao = imagem
+    bin = st.slider("Valor de corte", min_value=0, max_value=255, value=127)
+    imagemBinarizacao = aplicarBinarizacao(imagemBinarizacao, bin)
+    st.image(imagemBinarizacao)
+    # histograma(imagemBinarizacao)
+
+    brilho = st.sidebar.slider("Brilho (%)", min_value=-100, max_value=100, value=0)
+    hue = st.sidebar.slider("Matiz ( ° )", min_value=0, max_value=360, value=0)
     st.sidebar.header(" ")
     st.sidebar.header(" ")
-    novaImagem = alterarBrilho(image, brightness);
-    st.sidebar.image(novaImagem)
+    
+    imagemBeM = imagem
+    imagemBeM = alterarBrilho(imagemBeM, brilho);
+    imagemBeM = alterarMatiz(imagemBeM, hue);
+    st.sidebar.image(imagemBeM)
