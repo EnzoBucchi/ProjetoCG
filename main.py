@@ -82,6 +82,7 @@ def alterarBrilho(imagem, brilho):
             pixelHSI[2] = (pixelHSI[2] * ((brilho + 100)/100))
             pixel = hsi_to_rgb(pixelHSI)
             novaImagem.putpixel((x,y), (int(pixel[0]), int(pixel[1]), int(pixel[2])))
+            
     return novaImagem
 
 ### MATIZ ###
@@ -96,16 +97,15 @@ def alterarMatiz(imagem, hue):
                 pixelHSI[0] -= 360
             pixel = hsi_to_rgb(pixelHSI)
             novaImagem.putpixel((x,y), (int(pixel[0]), int(pixel[1]), int(pixel[2])))
+            
     return novaImagem
     
 ### LUMINANCIA ###
 #   -- Histograma
 #   -- Equalização de Histograma
 #   -- Binarização
-#
 def alterarLuminancia(imagem):
     novaImagem = imagem.copy()
-
     for x in range(imagem.width):
         for y in range(imagem.height):
             pixel = imagem.getpixel((x,y))
@@ -139,15 +139,14 @@ def aplicarBinarizacao(imagem, bin):
                 novaImagem.putpixel((x,y), (255, 255, 255))
             else:
                 novaImagem.putpixel((x,y), (0, 0, 0))
+                
     return novaImagem
-
 
 ### MONTAGEM DA INTERFACE ###
 arq_imagem = st.file_uploader(
     "Arquivo da Imagem:",
     help="Faça upload de uma imagem",
 )
-
 if arq_imagem is not None:
     imagem = Image.open(arq_imagem)
     imagem_matriz = np.array(imagem)
@@ -158,8 +157,6 @@ if arq_imagem is not None:
     line1 = st.columns((1, 1, 1))
     line2 = st.columns((1, 1, 1))
     line3 = st.columns((1, 1, 1))
-    line4 = st.columns((1, 1))
-    
     if coords is not None:
         rgb_pixel = (imagem_matriz[coords["y"]][coords["x"]])
         cmy_pixel = rgb_to_cmy(rgb_pixel)
@@ -192,9 +189,8 @@ if arq_imagem is not None:
     histograma(imagemLuminancia)
     
     st.header("Binarização")
-    imagemBinarizacao = imagem
     bin = st.slider("Valor de corte", min_value=0, max_value=255, value=127)
-    imagemBinarizacao = aplicarBinarizacao(imagemBinarizacao, bin)
+    imagemBinarizacao = aplicarBinarizacao(imagem, bin)
     st.image(imagemBinarizacao)
     # histograma(imagemBinarizacao)
 
