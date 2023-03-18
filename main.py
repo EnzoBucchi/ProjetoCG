@@ -127,7 +127,33 @@ def histograma(imagem):
     ax.set_title('Histograma')
     resultado.set_figheight(3)
     resultado.set_figwidth(10)
-    st.pyplot(resultado)
+    return resultado
+    
+
+def equalizarHistograma(imagem):
+    vetImagem = np.array(imagem)
+    histograma, bins = np.histogram(vetImagem, bins=256, range=(0, 256))
+
+    probabilidade = histograma / (imagem.width*imagem.height)
+
+    probAcumulada = np.cumsum(probabilidade) 
+
+    probAcumuladaNorm = (255 * probAcumulada / probAcumulada[-1]).astype(np.uint8)
+
+    mapaNovo = np.zeros_like(probabilidade)
+    for i in range(len(mapaNovo)):
+        mapaNovo[i] = probAcumuladaNorm[i]
+
+    for x in range(imagem.width):
+        for y in range(imagem.height):
+            pixel = vetImagem[y][x]
+            novo = mapaNovo[pixel]
+            vetImagem[y][x] = novo
+    novaImagem = Image.fromarray(vetImagem)
+
+    return novaImagem
+
+
 
 def aplicarBinarizacao(imagem, bin):
     novaImagem = imagem.copy()
@@ -186,7 +212,14 @@ if arq_imagem is not None:
     st.header("Luminância")
     imagemLuminancia = alterarLuminancia(imagem)
     st.image(imagemLuminancia) 
-    histograma(imagemLuminancia)
+    histogram = histograma(imagemLuminancia)
+    st.pyplot(histogram)
+
+    st.header("Equalização de histograma")
+    imagemEqualizada = equalizarHistograma(imagemLuminancia)
+    st.image(imagemEqualizada)
+    histogramEq = histograma(imagemEqualizada)
+    st.pyplot(histogramEq)
     
     st.header("Binarização")
     bin = st.slider("Valor de corte", min_value=0, max_value=255, value=127)
